@@ -1,5 +1,5 @@
 Catkin-ProjectName: sbpl
-Version: 1.0.3
+Version: 1.0.4
 Description: Search-based Planning Library (SBPL)
 Author: Maxim Likhachev <maximl@seas.upenn.edu>
 Maintainer: E. Gil Jones <gjones@willowgarage.com>
@@ -8,5 +8,4 @@ Homepage: http://www.ros.org
 Catkin-CopyrightType:  willowgarage
 Catkin-DebRulesType: cmake
 
-Depends: cmake
-        
+Depends: cmake, catkin        
