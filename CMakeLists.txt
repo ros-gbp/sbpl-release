@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.4.6)
 PROJECT( sbpl )
 find_package(catkin)
 
+catkin_stack()
 catkin_project(sbpl
   LIBRARIES sbpl
   INCLUDE_DIRS src
