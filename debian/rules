@@ -10,6 +10,12 @@
 export DH_VERBOSE=1
 export DH_OPTIONS=-v --buildsystem=cmake
 export CMAKE_PREFIX_PATH=/opt/ros/fuerte
+# TODO: remove the LDFLAGS override.  It's here to avoid esoteric problems
+# of this sort:
+#  https://code.ros.org/trac/ros/ticket/2977
+#  https://code.ros.org/trac/ros/ticket/3842
+export LDFLAGS=
+export PKG_CONFIG_PATH=/opt/ros/fuerte/lib/pkgconfig
 
 %:
 	dh  $@
@@ -26,4 +32,7 @@ override_dh_auto_configure:
 override_dh_auto_test:
 	echo -- Running tests. Even if one of them fails the build is not canceled.
 	dh_auto_test || true
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CURDIR)/debian/ros-fuerte-sbpl//opt/ros/fuerte/lib/
 
