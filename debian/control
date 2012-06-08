@@ -2,12 +2,12 @@ Source: ros-fuerte-sbpl
 Section: misc
 Priority: extra
 Maintainer: E. Gil Jones <gjones@willowgarage.com>
-Build-Depends: debhelper (>= 7.0.50~), cmake,ros-fuerte-roscpp-core,pkg-config
+Build-Depends: debhelper (>= 7.0.50~), ros-fuerte-ros-comm,cmake,pkg-config
 Homepage: http://www.ros.org
 Standards-Version: 3.9.2
 
 Package: ros-fuerte-sbpl
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, cmake,ros-fuerte-roscpp-core,pkg-config
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-fuerte-ros-comm,cmake,pkg-config
 Description: Search-based Planning Library (SBPL)
 
