@@ -9,6 +9,7 @@
   <copyright>the authors</copyright>
   <url>http://www.ros.org</url>
 
+  <build_depends>catkin</build_depends>
   <build_depends>cmake</build_depends>
   <build_depends>pkg-config</build_depends>
   <build_depends>ros_comm</build_depends>
