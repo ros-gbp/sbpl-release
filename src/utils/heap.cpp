@@ -29,7 +29,7 @@
 #include <iostream>
 using namespace std;
 
-#include "../sbpl/headers.h"
+#include <sbpl/headers.h>
 
 
 void heaperror(const char* ErrorString)
@@ -239,6 +239,48 @@ void CHeap::updateheap(AbstractSearchState *AbstractSearchState, CKey NewKey)
     {
       heap[AbstractSearchState->heapindex].key = NewKey;
       percolateupordown(AbstractSearchState->heapindex, heap[AbstractSearchState->heapindex]);
+    }
+}
+
+void CHeap::insert_unsafe(AbstractSearchState* AbstractSearchState, CKey key)
+{
+    heapelement tmp;
+    char strTemp[100];
+    
+    sizecheck();
+    
+    if (AbstractSearchState->heapindex != 0) {
+        sprintf(strTemp, "insertheap: AbstractSearchState is already in heap");
+        heaperror(strTemp);
+    }
+    tmp.heapstate = AbstractSearchState;
+    tmp.key = key;
+    
+    ++currentsize;
+    heap[currentsize] = tmp;
+    heap[currentsize].heapstate->heapindex = currentsize;
+}
+
+void CHeap::deleteheap_unsafe(AbstractSearchState* AbstractSearchState)
+{
+    if (AbstractSearchState->heapindex == 0) {
+        heaperror("deleteheap: AbstractSearchState is not in heap");
+    }
+    
+    heap[AbstractSearchState->heapindex] = heap[currentsize];
+    --currentsize;
+    
+    heap[AbstractSearchState->heapindex].heapstate->heapindex = AbstractSearchState->heapindex;
+    AbstractSearchState->heapindex = 0;
+}
+
+void CHeap::updateheap_unsafe(AbstractSearchState* AbstractSearchState, CKey NewKey)
+{
+    if (AbstractSearchState->heapindex == 0) {
+        heaperror("updateheap: AbstractSearchState is not in heap");
+    }
+    if (heap[AbstractSearchState->heapindex].key != NewKey) {
+        heap[AbstractSearchState->heapindex].key = NewKey;
     }
 }
 
