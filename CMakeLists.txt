@@ -5,6 +5,7 @@ if(NOT OUTSIDE_ROS)
   # Add a ROS C++ macro to tell SBPL to use ROS print statements
   #find_package(PkgConfig REQUIRED)
   #pkg_check_modules(ROSCONSOLE REQUIRED rosconsole)
+  find_package(catkin REQUIRED)
   find_package(ROS COMPONENTS rosconsole)
   include_directories(${rosconsole_INCLUDE_DIRS})
   link_directories(${rosconsole_LIBRARY_DIRS})
