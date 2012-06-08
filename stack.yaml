@@ -9,4 +9,3 @@ Catkin-CopyrightType:  willowgarage
 Catkin-DebRulesType: cmake
 
 Depends: cmake, rosconsole        
-
