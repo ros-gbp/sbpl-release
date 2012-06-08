@@ -3,10 +3,11 @@ PROJECT( sbpl )
 
 if(NOT OUTSIDE_ROS)
   # Add a ROS C++ macro to tell SBPL to use ROS print statements
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(ROSCONSOLE REQUIRED rosconsole)
-  include_directories(${ROSCONSOLE_INCLUDE_DIRS})
-  link_directories(${ROSCONSOLE_LIBRARY_DIRS})
+  #find_package(PkgConfig REQUIRED)
+  #pkg_check_modules(ROSCONSOLE REQUIRED rosconsole)
+  find_package(ROS COMPONENTS rosconsole)
+  include_directories(${rosconsole_INCLUDE_DIRS})
+  link_directories(${rosconsole_LIBRARY_DIRS})
   add_definitions(-DROS)  
 endif(NOT OUTSIDE_ROS)
 
@@ -32,7 +33,7 @@ add_library(sbpl SHARED
   )
 
 if(NOT OUTSIDE_ROS)
-  target_link_libraries(sbpl ${ROSCONSOLE_LIBRARIES})
+  target_link_libraries(sbpl ${rosconsole_LIBRARIES})
 endif(NOT OUTSIDE_ROS)
 
 set(PKG_NAME "sbpl")
