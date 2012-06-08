@@ -8,4 +8,4 @@ Homepage: http://www.ros.org
 Catkin-CopyrightType:  willowgarage
 Catkin-DebRulesType: cmake
 
-Depends: cmake, roscpp_core, pkg-config
+Depends: cmake, ros_comm, pkg-config
