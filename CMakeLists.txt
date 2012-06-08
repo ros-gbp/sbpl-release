@@ -33,7 +33,7 @@ add_library(sbpl SHARED
   )
 
 if(NOT OUTSIDE_ROS)
-  target_link_libraries(sbpl ${ROSCONSOLE_LIBRARIES})
+  target_link_libraries(sbpl ${rosconsole_LIBRARIES})
 endif(NOT OUTSIDE_ROS)
 
 set(PKG_NAME "sbpl")
