@@ -1,13 +1,13 @@
-Source: ros-groovy-sbpl
+Source: ros-fuerte-sbpl
 Section: misc
 Priority: extra
 Maintainer: Ioan Sucan <isucan@willowgarage.com>, E. Gil Jones <gjones@willowgarage.com>
-Build-Depends: debhelper (>= 7.0.50~), ros-groovy-ros-comm,ros-groovy-catkin,cmake,pkg-config
+Build-Depends: debhelper (>= 7.0.50~), ros-fuerte-catkin,ros-fuerte-ros-comm,cmake,pkg-config
 Homepage: http://www.ros.org
 Standards-Version: 3.9.2
 
-Package: ros-groovy-sbpl
+Package: ros-fuerte-sbpl
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ros-groovy-ros-comm
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-fuerte-ros-comm
 Description: Search-based Planning Library (SBPL)
 
