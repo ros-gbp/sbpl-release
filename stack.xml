@@ -1,6 +1,6 @@
 <stack>
   <name>sbpl</name>
-  <version>1.1.0</version>
+  <version>1.1.2</version>
   <description>Search-based Planning Library (SBPL)</description>
   <author email="panj@cs.unc.edu">Jia Pan</author>
   <maintainer email="gjones@willowgarage.com">E. Gil Jones</maintainer>
