@@ -1,0 +1,23 @@
+From 4bf866c115c297af87367c09d7bbd80e0f7ac43f Mon Sep 17 00:00:00 2001
+From: isucan <isucan@gmail.com>
+Date: Thu, 1 Aug 2013 01:31:18 +0300
+Subject: [PATCH] Added install rule for package.xml
+
+---
+ CMakeLists.txt |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 426c071..82ce2fa 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -39,3 +39,6 @@ target_link_libraries(test_sbpl sbpl)
+ 
+ add_executable(test_adjacency_list src/test/test_adjacency_list.cpp)
+ target_link_libraries(test_adjacency_list sbpl)
++
++# Install catkin package.xml
++install(FILES package.xml DESTINATION share/sbpl)
+-- 
+1.7.9.5
+
