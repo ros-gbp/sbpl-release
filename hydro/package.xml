@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>ompl</name>
+  <name>sbpl</name>
   <version>:{version}</version>
   <description>Search-based planning library (SBPL).</description>
   <maintainer email="isucan@willowgarage.com">Ioan Sucan</maintainer>
