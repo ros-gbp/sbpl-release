@@ -39,3 +39,6 @@ target_link_libraries(test_sbpl sbpl)
 
 add_executable(test_adjacency_list src/test/test_adjacency_list.cpp)
 target_link_libraries(test_adjacency_list sbpl)
+
+# Install catkin package.xml
+install(FILES package.xml DESTINATION share/sbpl)
