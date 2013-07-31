@@ -1,0 +1,12 @@
+Source: ros-hydro-sbpl
+Section: misc
+Priority: extra
+Maintainer: Ioan Sucan <isucan@willowgarage.com>
+Build-Depends: debhelper (>= 7.0.50~), cmake
+Homepage: http://http://sbpl.net
+Standards-Version: 3.9.2
+
+Package: ros-hydro-sbpl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+Description: Search-based planning library (SBPL).
