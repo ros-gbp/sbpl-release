@@ -58,7 +58,6 @@ install(DIRECTORY src/include/sbpl DESTINATION include
 	FILES_MATCHING PATTERN "*.h")
 install(TARGETS sbpl
 	LIBRARY DESTINATION lib)
-install(FILES package.xml DESTINATION share/sbpl)
 
 add_executable(test_sbpl src/test/main.cpp)
 target_link_libraries(test_sbpl sbpl)
