@@ -1,0 +1,24 @@
+From 8e63b24f9d8d78f4193a3c982c54f6afb4234eff Mon Sep 17 00:00:00 2001
+From: Michael Ferguson <mfergs7@gmail.com>
+Date: Wed, 10 Dec 2014 21:55:41 -0800
+Subject: [PATCH] Added install rule for package.xml
+
+---
+ CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2b4085c..03e55aa 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -58,6 +58,7 @@ install(DIRECTORY src/include/sbpl DESTINATION include
+ 	FILES_MATCHING PATTERN "*.h")
+ install(TARGETS sbpl
+ 	LIBRARY DESTINATION lib)
++install(FILES package.xml DESTINATION share/sbpl)
+ 
+ add_executable(test_sbpl src/test/main.cpp)
+ target_link_libraries(test_sbpl sbpl)
+-- 
+1.9.1
+
