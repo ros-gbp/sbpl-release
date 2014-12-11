@@ -27,6 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+ #include <cstdio>
+ #ifdef ROS
+ #include <ros/ros.h>
+ #endif
+
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 
@@ -57,37 +62,72 @@
  */
 #define ERR_EPS 0.0000001
 
-//Macros for compiling with an without ROS
+#define SBPL_LEVEL_NONE   0
+#define SBPL_LEVEL_DEBUG  1
+#define SBPL_LEVEL_INFO   2
+#define SBPL_LEVEL_WARN   3
+#define SBPL_LEVEL_ERROR  4
+#define SBPL_LEVEL_FATAL  5
+
+typedef int (*SBPL_PRINT_TEXT_FP)(int level, const char*);
+typedef int (*SBPL_FFLUSH_TEXT_FP)(FILE*);
+
+void SET_SBPL_PRINT_TEXT_FP(SBPL_PRINT_TEXT_FP fptr); 
+void SET_SBPL_FFLUSH_TEXT_FP(SBPL_FFLUSH_TEXT_FP fptr);
+
+int SBPL_PRINTALL(int level, const char* format, ...);
+int SBPL_FPRINTALL(FILE* file, const char* format, ...);
+int SBPL_FFLUSHALL(FILE* file);
+
+// Standard Output Logger Macros
 #ifdef ROS
-#include <ros/ros.h>
+#define SBPL_DEBUG                  ROS_DEBUG
+#define SBPL_DEBUG_NAMED(a,...)     ROS_DEBUG_NAMED("SBPL_" #a,__VA_ARGS__)
+#define SBPL_INFO                   ROS_INFO
+#define SBPL_WARN                   ROS_WARN
+#define SBPL_ERROR                  ROS_ERROR
+#define SBPL_FATAL                  ROS_FATAL
+#else
+  #if DEBUG
+#define SBPL_DEBUG(...)             SBPL_PRINTALL(SBPL_LEVEL_DEBUG, __VA_ARGS__)
+#define SBPL_DEBUG_NAMED(file, ...) SBPL_FPRINTALL(file, __VA_ARGS__)
+#define SBPL_INFO(...)              SBPL_PRINTALL(SBPL_LEVEL_INFO, __VA_ARGS__)
+#define SBPL_WARN(...)              SBPL_PRINTALL(SBPL_LEVEL_WARN, __VA_ARGS__)
+#define SBPL_ERROR(...)             SBPL_PRINTALL(SBPL_LEVEL_ERROR, __VA_ARGS__)
+#define SBPL_FATAL(...)             SBPL_PRINTALL(SBPL_LEVEL_FATAL, __VA_ARGS__)
+  #else
+#define SBPL_DEBUG(...)
+#define SBPL_DEBUG_NAMED(file, ...)
+#define SBPL_INFO(...)
+#define SBPL_WARN(...)
+#define SBPL_ERROR(...)
+#define SBPL_FATAL(...)
+  #endif
+#endif
 
-#define SBPL_DEBUG          ROS_DEBUG
-#define SBPL_DEBUG_NAMED(a,...) ROS_DEBUG_NAMED("SBPL_" #a,__VA_ARGS__)
-#define SBPL_INFO           ROS_INFO
-#define SBPL_WARN           ROS_WARN
-#define SBPL_ERROR          ROS_ERROR
-#define SBPL_FATAL          ROS_FATAL
+// File Output Logger Macros
+#ifdef ROS
+#define SBPL_DEBUG_NAMED(a,...)     ROS_DEBUG_NAMED("SBPL_" #a,__VA_ARGS__)
 
-#define SBPL_FOPEN(...)     (FILE*)1
+#define SBPL_FOPEN(...)             (FILE*)1
 #define SBPL_FCLOSE(...)
-#define SBPL_PRINTF         ROS_DEBUG
-#define SBPL_FPRINTF(a,...) ROS_DEBUG_NAMED("SBPL_" #a,__VA_ARGS__)
+#define SBPL_PRINTF                 ROS_DEBUG
+#define SBPL_FPRINTF(a,...)         ROS_DEBUG_NAMED("SBPL_" #a,__VA_ARGS__)
 #define SBPL_FFLUSH(...)
 #else
-#include <cstdio>
-
-#define SBPL_DEBUG          printf
-#define SBPL_DEBUG_NAMED    fprintf
-#define SBPL_INFO           printf
-#define SBPL_WARN           printf
-#define SBPL_ERROR          printf
-#define SBPL_FATAL          printf
-
-#define SBPL_FOPEN          fopen
-#define SBPL_FCLOSE         fclose
-#define SBPL_PRINTF         printf
-#define SBPL_FPRINTF        fprintf
-#define SBPL_FFLUSH         fflush
+  #if DEBUG
+#define SBPL_FOPEN                  fopen
+#define SBPL_FCLOSE                 fclose
+#define SBPL_PRINTF(...)            SBPL_PRINTALL(SBPL_LEVEL_NONE, __VA_ARGS__)
+#define SBPL_FPRINTF(file, ...)     SBPL_FPRINTALL(file, __VA_ARGS__)
+#define SBPL_FFLUSH(file)           SBPL_FFLUSHALL(file)
+  #else
+#define SBPL_FOPEN(file, ...)       (FILE*)1
+#define SBPL_FCLOSE(...)
+#define SBPL_PRINTF(...)
+#define SBPL_FPRINTF(file, ...)
+#define SBPL_FFLUSH(file)
+  #endif
 #endif
 
 #endif

@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT( sbpl )
 
+# version (e.g. for packaging)
+set(SBPL_MAJOR_VERSION 1)
+set(SBPL_MINOR_VERSION 2)
+set(SBPL_PATCH_VERSION 0)
+set(SBPL_VERSION ${SBPL_MAJOR_VERSION}.${SBPL_MINOR_VERSION}.${SBPL_PATCH_VERSION})
+
+set(CMAKE_BUILD_TYPE Release)
+
 include_directories(src/include)
 
 add_library(sbpl SHARED
@@ -16,18 +24,35 @@ add_library(sbpl SHARED
   src/planners/ppcpplanner.cpp
   src/planners/ANAplanner.cpp
   src/planners/rstarplanner.cpp
+  src/planners/lazyARA.cpp
   src/utils/heap.cpp
   src/utils/mdp.cpp
   src/utils/utils.cpp
-  src/utils/2Dgridsearch.cpp	
+  src/utils/2Dgridsearch.cpp
+  src/utils/config.cpp	
   )
 
+set(SBPL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+set(SBPL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+  
+# support for pkg-config
 set(PKG_NAME "sbpl")
 set(PKG_DESC "The Search Based Planning Library")
 set(PKG_SBPL_LIBS "-lsbpl")
-set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/sbpl.pc")
-configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
+set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/sbpl.pc.in")
+set(pkg_conf_file "${PROJECT_BINARY_DIR}/InstallFiles/sbpl.pc")
+configure_file("${pkg_conf_file_in}" "${pkg_conf_file}" @ONLY)
 install(FILES ${pkg_conf_file} DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+
+# support for cmake-config:
+configure_file(sbpl-config.cmake.in
+  "${PROJECT_BINARY_DIR}/InstallFiles/sbpl-config.cmake" @ONLY)
+configure_file(sbpl-config-version.cmake.in
+  "${PROJECT_BINARY_DIR}/InstallFiles/sbpl-config-version.cmake" @ONLY)
+install(FILES
+  "${PROJECT_BINARY_DIR}/InstallFiles/sbpl-config.cmake"
+  "${PROJECT_BINARY_DIR}/InstallFiles/sbpl-config-version.cmake"
+DESTINATION share/sbpl/)
 
 install(DIRECTORY src/include/sbpl DESTINATION include
 	FILES_MATCHING PATTERN "*.h")

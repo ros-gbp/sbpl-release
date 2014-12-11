@@ -176,7 +176,7 @@ int ARAPlanner::ComputeHeuristic(CMDPSTATE* MDPstate, ARASearchStateSpace_t* pSe
     }
 }
 
-//initialization of a state
+// initialization of a state
 void ARAPlanner::InitializeSearchStateInfo(ARAState* state, ARASearchStateSpace_t* pSearchStateSpace)
 {
     state->g = INFINITECOST;
@@ -196,11 +196,11 @@ void ARAPlanner::InitializeSearchStateInfo(ARAState* state, ARASearchStateSpace_
     //compute heuristics
 #if USE_HEUR
     if(pSearchStateSpace->searchgoalstate != NULL)
-    state->h = ComputeHeuristic(state->MDPstate, pSearchStateSpace);
+        state->h = ComputeHeuristic(state->MDPstate, pSearchStateSpace);
     else
-    state->h = 0;
+        state->h = 0;
 #else
-    state->h = 0;
+        state->h = 0;
 #endif
 }
 
@@ -503,6 +503,16 @@ void ARAPlanner::Reevaluatefvals(ARASearchStateSpace_t* pSearchStateSpace)
     pSearchStateSpace->bReevaluatefvals = false;
 }
 
+void ARAPlanner::Reevaluatehvals(ARASearchStateSpace_t* pSearchStateSpace)
+{
+    for(int i = 0; i < (int)pSearchStateSpace->searchMDP.StateArray.size(); i++)
+    {
+        CMDPSTATE* MDPstate = pSearchStateSpace->searchMDP.StateArray[i];
+        ARAState* state = (ARAState*)MDPstate->PlannerSpecificData;
+        state->h = ComputeHeuristic(MDPstate, pSearchStateSpace);
+    }
+}
+
 //creates (allocates memory) search state space
 //does not initialize search statespace
 int ARAPlanner::CreateSearchStateSpace(ARASearchStateSpace_t* pSearchStateSpace)
@@ -517,6 +527,7 @@ int ARAPlanner::CreateSearchStateSpace(ARASearchStateSpace_t* pSearchStateSpace)
     pSearchStateSpace->searchstartstate = NULL;
 
     searchexpands = 0;
+    num_of_expands_initial_solution = -1;
 
     pSearchStateSpace->bReinitializeSearchStateSpace = false;
 
@@ -590,8 +601,13 @@ void ARAPlanner::ReInitializeSearchStateSpace(ARASearchStateSpace_t* pSearchStat
     if (startstateinfo->callnumberaccessed != pSearchStateSpace->callnumber) {
         ReInitializeSearchStateInfo(startstateinfo, pSearchStateSpace);
     }
-
     startstateinfo->g = 0;
+    
+    //initialize goal state
+    ARAState* searchgoalstate = (ARAState*)(pSearchStateSpace->searchgoalstate->PlannerSpecificData);
+    if (searchgoalstate->callnumberaccessed != pSearchStateSpace->callnumber) {
+        ReInitializeSearchStateInfo(searchgoalstate, pSearchStateSpace);
+    }
 
     //insert start state into the heap
     key.key[0] = (long int)(pSearchStateSpace->eps * startstateinfo->h);
@@ -639,15 +655,8 @@ int ARAPlanner::SetSearchGoalState(int SearchGoalStateID, ARASearchStateSpace_t*
         pSearchStateSpace->bNewSearchIteration = true;
         pSearchStateSpace_->eps = this->finitial_eps;
 
-        //recompute heuristic for the heap if heuristics is used
 #if USE_HEUR
-        for(int i = 0; i < (int)pSearchStateSpace->searchMDP.StateArray.size(); i++)
-        {
-            CMDPSTATE* MDPstate = pSearchStateSpace->searchMDP.StateArray[i];
-            ARAState* state = (ARAState*)MDPstate->PlannerSpecificData;
-            state->h = ComputeHeuristic(MDPstate, pSearchStateSpace);
-        }
-
+        //recompute heuristic for the heap if heuristics is used
         pSearchStateSpace->bReevaluatefvals = true;
 #endif
     }
@@ -893,14 +902,22 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
     CKey key;
     TimeStarted = clock();
     searchexpands = 0;
+    num_of_expands_initial_solution = -1;
     double old_repair_time = repair_time;
-    if (!use_repair_time) repair_time = MaxNumofSecs;
+    if (!use_repair_time)
+        repair_time = MaxNumofSecs;
 
 #if DEBUG
     SBPL_FPRINTF(fDeb, "new search call (call number=%d)\n", pSearchStateSpace->callnumber);
 #endif
 
-    if (pSearchStateSpace->bReinitializeSearchStateSpace == true) {
+    if (pSearchStateSpace->bReevaluatefvals) {
+        // costs have changed or a new goal has been set
+        environment_->EnsureHeuristicsUpdated(bforwardsearch);
+        Reevaluatehvals(pSearchStateSpace);
+    }
+
+    if (pSearchStateSpace->bReinitializeSearchStateSpace) {
         //re-initialize state space
         ReInitializeSearchStateSpace(pSearchStateSpace);
     }
@@ -915,9 +932,6 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         repair_time = INFINITECOST;
     }
 
-    //ensure heuristics are up-to-date
-    environment_->EnsureHeuristicsUpdated((bforwardsearch == true));
-
     //the main loop of ARA*
     stats.clear();
     int prevexpands = 0;
@@ -931,25 +945,25 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         //decrease eps for all subsequent iterations
         if (fabs(pSearchStateSpace->eps_satisfied - pSearchStateSpace->eps) < ERR_EPS && !bFirstSolution) {
             pSearchStateSpace->eps = pSearchStateSpace->eps - dec_eps;
-            if (pSearchStateSpace->eps < final_epsilon) pSearchStateSpace->eps = final_epsilon;
+            if (pSearchStateSpace->eps < final_epsilon)
+                pSearchStateSpace->eps = final_epsilon;
 
             //the priorities need to be updated
             pSearchStateSpace->bReevaluatefvals = true;
 
             //it will be a new search
             pSearchStateSpace->bNewSearchIteration = true;
-
-            //build a new open list by merging it with incons one
-            BuildNewOPENList(pSearchStateSpace);
-        }
+        }           
 
         if (pSearchStateSpace->bNewSearchIteration) {
             pSearchStateSpace->searchiteration++;
             pSearchStateSpace->bNewSearchIteration = false;
+            BuildNewOPENList(pSearchStateSpace);
         }
 
         //re-compute f-values if necessary and reorder the heap
-        if (pSearchStateSpace->bReevaluatefvals) Reevaluatefvals(pSearchStateSpace);
+        if (pSearchStateSpace->bReevaluatefvals)
+            Reevaluatefvals(pSearchStateSpace);
 
         //improve or compute path
         if (ImprovePath(pSearchStateSpace, MaxNumofSecs) == 1) {
@@ -986,10 +1000,12 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         prevexpands = searchexpands;
 
         //if just the first solution then we are done
-        if (bFirstSolution) break;
+        if (bFirstSolution)
+            break;
 
         //no solution exists
-        if (((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g == INFINITECOST) break;
+        if (((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g == INFINITECOST)
+            break;
     }
     repair_time = old_repair_time;
 
@@ -1120,11 +1136,13 @@ int ARAPlanner::set_start(int start_stateID)
 
 void ARAPlanner::costs_changed(StateChangeQuery const & stateChange)
 {
+    pSearchStateSpace_->bReevaluatefvals = true;
     pSearchStateSpace_->bReinitializeSearchStateSpace = true;
 }
 
 void ARAPlanner::costs_changed()
 {
+    pSearchStateSpace_->bReevaluatefvals = true;
     pSearchStateSpace_->bReinitializeSearchStateSpace = true;
 }
 
@@ -1142,8 +1160,10 @@ int ARAPlanner::force_planning_from_scratch_and_free_memory()
     SBPL_PRINTF("planner: forceplanfromscratch set\n");
     int start_id = -1;
     int goal_id = -1;
-    if (pSearchStateSpace_->searchstartstate) start_id = pSearchStateSpace_->searchstartstate->StateID;
-    if (pSearchStateSpace_->searchgoalstate) goal_id = pSearchStateSpace_->searchgoalstate->StateID;
+    if (pSearchStateSpace_->searchstartstate)
+        start_id = pSearchStateSpace_->searchstartstate->StateID;
+    if (pSearchStateSpace_->searchgoalstate)
+        goal_id = pSearchStateSpace_->searchgoalstate->StateID;
 
     if (!bforwardsearch) {
         int temp = start_id;
@@ -1151,15 +1171,17 @@ int ARAPlanner::force_planning_from_scratch_and_free_memory()
         goal_id = temp;
     }
 
-    DeleteSearchStateSpace( pSearchStateSpace_);
+    DeleteSearchStateSpace(pSearchStateSpace_);
     CreateSearchStateSpace(pSearchStateSpace_);
     InitializeSearchStateSpace(pSearchStateSpace_);
     for (unsigned int i = 0; i < environment_->StateID2IndexMapping.size(); i++)
         for (int j = 0; j < NUMOFINDICES_STATEID2IND; j++)
             environment_->StateID2IndexMapping[i][j] = -1;
 
-    if (start_id >= 0) set_start(start_id);
-    if (goal_id >= 0) set_goal(goal_id);
+    if (start_id >= 0)
+        set_start(start_id);
+    if (goal_id >= 0)
+        set_goal(goal_id);
     return 1;
 }
 
