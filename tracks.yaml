@@ -74,11 +74,11 @@ tracks:
     devel_branch: null
     last_version: 1.2.0
     name: upstream
-    patches: indigo
+    patches: jade
     release_inc: '1'
-    release_repo_url: null
+    release_repo_url: git@github.com:ros-gbp/sbpl-release.git
     release_tag: :{version}
-    ros_distro: indigo
+    ros_distro: jade
     vcs_type: git
     vcs_uri: https://github.com/sbpl/sbpl
     version: :{ask}
