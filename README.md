@@ -1,3 +1,26 @@
+## sbpl (kinetic) - 1.2.0-2
+
+The packages in the `sbpl` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release sbpl -t kinetic -r kinetic` on `Thu, 29 Mar 2018 03:38:46 -0000`
+
+The `sbpl` package was released.
+
+Version of package(s) in repository `sbpl`:
+
+- upstream repository: https://github.com/sbpl/sbpl
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `1.2.0-1`
+- new version: `1.2.0-2`
+
+Versions of tools used:
+
+- bloom version: `0.5.26`
+- catkin_pkg version: `0.2.10`
+- rosdep version: `0.12.1`
+- rosdistro version: `0.4.4`
+- vcstools version: `0.1.40`
+
+
 ## sbpl (kinetic) - 1.2.0-1
 
 The packages in the `sbpl` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release sbpl -t kinetic -r kinetic` on `Thu, 29 Mar 2018 03:31:35 -0000`
