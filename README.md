@@ -1,3 +1,26 @@
+## sbpl (melodic) - 1.2.0-0
+
+The packages in the `sbpl` repository were released into the `melodic` distro by running `/usr/bin/bloom-release sbpl -t melodic -r melodic` on `Tue, 17 Jul 2018 23:33:46 -0000`
+
+The `sbpl` package was released.
+
+Version of package(s) in repository `sbpl`:
+
+- upstream repository: https://github.com/sbpl/sbpl
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `null`
+- new version: `1.2.0-0`
+
+Versions of tools used:
+
+- bloom version: `0.6.4`
+- catkin_pkg version: `0.4.3`
+- rosdep version: `0.12.2`
+- rosdistro version: `0.6.8`
+- vcstools version: `0.1.40`
+
+
 ## sbpl (lunar) - 1.2.0-0
 
 The packages in the `sbpl` repository were released into the `lunar` distro by running `/usr/bin/bloom-release sbpl -t lunar -r lunar` on `Tue, 17 Jul 2018 23:22:55 -0000`
