@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2008, Maxim Likhachev
+ * Copyright (c) 2015, Maxim Likhachev
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of the Carnegie Mellon University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -27,13 +27,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __MDPCONFIG_H_
-#define __MDPCONFIG_H_
+#ifndef sbpl_Heuristic_h
+#define sbpl_Heuristic_h
 
-struct MDPConfig
+#include <sbpl/discrete_space_information/environment.h>
+
+class Heuristic
 {
-    int startstateid;
-    int goalstateid;
+public:
+
+    Heuristic(DiscreteSpaceInformation* environment) :
+        m_environment(environment)
+    { }
+
+    virtual ~Heuristic() { }
+
+    virtual int GetGoalHeuristic(int state_id) = 0;
+    virtual int GetStartHeuristic(int state_id) = 0;
+    virtual int GetFromToHeuristic(int from_id, int to_id) = 0;
+
+protected:
+
+    DiscreteSpaceInformation* m_environment;
 };
 
 #endif
