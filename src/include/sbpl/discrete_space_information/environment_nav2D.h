@@ -10,7 +10,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the University of Pennsylvania nor the names of its
+ *     * Neither the name of the Carnegie Mellon University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  * 
@@ -45,6 +45,11 @@ class MDPConfig;
 //configuration parameters
 typedef struct ENV_NAV2D_CONFIG
 {
+    ENV_NAV2D_CONFIG() 
+    {
+        Grid2D = NULL;
+    }
+
     int EnvWidth_c;
     int EnvHeight_c;
     int StartX_c;
@@ -75,8 +80,13 @@ typedef struct ENVHASHENTRY
 } EnvNAV2DHashEntry_t;
 
 //variables that dynamically change (e.g., array of states, ...)
-typedef struct
+typedef struct ENVNAV2D
 {
+    ENVNAV2D() 
+    {
+        Coord2StateIDHashTable = NULL;
+    }
+
     int startstateid;
     int goalstateid;
 
