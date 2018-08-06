@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Maxim Likhachev
+ * Copyright (c) 2015, Maxim Likhachev
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,14 +26,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#ifndef sbpl_EmbeddedHeuristic_h
+#define sbpl_EmbeddedHeuristic_h
 
-#ifndef __MDPCONFIG_H_
-#define __MDPCONFIG_H_
+#include <sbpl/heuristics/heuristic.h>
 
-struct MDPConfig
+class EmbeddedHeuristic : public Heuristic
 {
-    int startstateid;
-    int goalstateid;
+public:
+
+    EmbeddedHeuristic(DiscreteSpaceInformation* environment);
+
+    int GetGoalHeuristic(int state_id);
+    int GetStartHeuristic(int state_id);
+    int GetFromToHeuristic(int from_id, int to_id);
 };
 
 #endif
