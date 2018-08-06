@@ -10,7 +10,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the University of Pennsylvania nor the names of its
+ *     * Neither the name of the Carnegie Mellon University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  * 
@@ -216,6 +216,19 @@ public:
      * \brief prints out the search path into a file
      */
     virtual void print_searchpath(FILE* fOut);
+
+    /**
+     * \brief Compute the suboptimality bound for the most recent solution.
+     *
+     * The suboptimality bound of the solution may be provably less than the
+     * value of epsilon satisfied during the most recent planning iteration.
+     * This suboptimality bound is computed as the ratio between the current
+     * g-value for the goal and the minimum un-weighted f-value of a locally
+     * inconsistent state.
+     * 
+     * \return The suboptimality bound of the most recently computed solution
+     */
+    double compute_suboptimality();
 
     /**
      * \brief constructor
