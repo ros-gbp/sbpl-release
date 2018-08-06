@@ -1,19 +1,19 @@
 /*
  * Copyright (c) 2008, Maxim Likhachev
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the University of Pennsylvania nor the names of its
+ *     * Neither the name of the Carnegie Mellon University nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,14 +32,20 @@
 
 #include <cstdio>
 #include <vector>
+#include <sstream>
+
 #include <sbpl/discrete_space_information/environment.h>
 #include <sbpl/utils/utils.h>
+
+// Define to test against in client code. Signals that Set2DBlockSize and
+// Set2DBucketSize are available in EnvironmentNAVXYTHETALATTICE
+#define SBPL_CUSTOM_2D_OPTIONS 1
 
 //eight-connected grid
 #define NAVXYTHETALAT_DXYWIDTH 8
 #define ENVNAVXYTHETALAT_DEFAULTOBSTHRESH 254	//see explanation of the value below
 //maximum number of states for storing them into lookup (as opposed to hash)
-#define SBPL_XYTHETALAT_MAXSTATESFORLOOKUP 100000000 
+#define SBPL_XYTHETALAT_MAXSTATESFORLOOKUP 100000000
 //definition of theta orientations
 //0 - is aligned with X-axis in the positive direction (1,0 in polar coordinates)
 //theta increases as we go counterclockwise
@@ -47,14 +53,14 @@
 #define NAVXYTHETALAT_THETADIRS 16
 //number of actions per x,y,theta state
 //decrease, increase, same angle while moving plus decrease, increase angle while standing.
-#define NAVXYTHETALAT_DEFAULT_ACTIONWIDTH 5 
+#define NAVXYTHETALAT_DEFAULT_ACTIONWIDTH 5
 #define NAVXYTHETALAT_COSTMULT_MTOMM 1000
 
 class CMDPSTATE;
 class MDPConfig;
 class SBPL2DGridSearch;
 
-typedef struct
+struct EnvNAVXYTHETALATAction_t
 {
     unsigned char aind; //index of the action (unique for given starttheta)
     char starttheta;
@@ -67,30 +73,35 @@ typedef struct
     std::vector<sbpl_xy_theta_pt_t> intermptV;
     //start at 0,0,starttheta and end at endcell in discrete domain
     std::vector<sbpl_xy_theta_cell_t> interm3DcellsV;
-} EnvNAVXYTHETALATAction_t;
 
-typedef struct
+ int motprimID;
+ double turning_radius;
+
+};
+
+struct EnvNAVXYTHETALATHashEntry_t
 {
     int stateID;
     int X;
     int Y;
     char Theta;
     int iteration;
-} EnvNAVXYTHETALATHashEntry_t;
+};
 
-typedef struct
+struct SBPL_xytheta_mprimitive
 {
     int motprimID;
     unsigned char starttheta_c;
     int additionalactioncostmult;
     sbpl_xy_theta_cell_t endcell;
+    double turning_radius;
     //intermptV start at 0,0,starttheta and end at endcell in continuous
     //domain with half-bin less to account for 0,0 start
     std::vector<sbpl_xy_theta_pt_t> intermptV;
-} SBPL_xytheta_mprimitive;
+};
 
 //variables that dynamically change (e.g., array of states, ...)
-typedef struct
+struct EnvironmentNAVXYTHETALAT_t
 {
     int startstateid;
     int goalstateid;
@@ -98,10 +109,10 @@ typedef struct
     bool bInitialized;
 
     //any additional variables
-} EnvironmentNAVXYTHETALAT_t;
+};
 
 //configuration parameters
-typedef struct ENV_NAVXYTHETALAT_CONFIG
+struct EnvNAVXYTHETALATConfig_t
 {
     int EnvWidth_c;
     int EnvHeight_c;
@@ -113,6 +124,11 @@ typedef struct ENV_NAVXYTHETALAT_CONFIG
     int EndY_c;
     int EndTheta;
     unsigned char** Grid2D;
+
+    std::vector<double> ThetaDirs;
+    double StartTheta_rad;
+    double EndTheta_rad;
+    double min_turning_radius_m;
 
     // the value at which and above which cells are obstacles in the maps sent from outside
     // the default is defined above
@@ -138,21 +154,25 @@ typedef struct ENV_NAVXYTHETALAT_CONFIG
     int cost_possibly_circumscribed_thresh; // it has to be integer, because -1 means that it is not provided.
 
     double nominalvel_mpersecs;
+
+    //double nominalangvel_radpersecs;
+
     double timetoturn45degsinplace_secs;
+
     double cellsize_m;
 
     int dXY[NAVXYTHETALAT_DXYWIDTH][2];
 
     //array of actions, ActionsV[i][j] - jth action for sourcetheta = i
-    EnvNAVXYTHETALATAction_t** ActionsV; 
+    EnvNAVXYTHETALATAction_t** ActionsV;
     //PredActionsV[i] - vector of pointers to the actions that result in a state with theta = i
-    std::vector<EnvNAVXYTHETALATAction_t*>* PredActionsV; 
+    std::vector<EnvNAVXYTHETALATAction_t*>* PredActionsV;
 
     int actionwidth; //number of motion primitives
     std::vector<SBPL_xytheta_mprimitive> mprimV;
 
     std::vector<sbpl_2Dpt_t> FootprintPolygon;
-} EnvNAVXYTHETALATConfig_t;
+};
 
 class EnvNAVXYTHETALAT_InitParms
 {
@@ -193,6 +213,8 @@ public:
      */
     virtual bool InitializeEnv(const char* sEnvFile, const std::vector<sbpl_2Dpt_t>& perimeterptsV,
                                const char* sMotPrimFile);
+
+    //  ??  virtual bool InitializeEnv(const ENVNAVXYTHETAVELOLAT_InitParms & params);
 
     /**
      * \brief see comments on the same function in the parent class
@@ -262,6 +284,30 @@ public:
      * \brief see comments on the same function in the parent class
      */
     virtual void PrintEnv_Config(FILE* fOut);
+
+    /**
+     * \brief set the block size for the 2D heuristic. A block size of 1 is the default and will result in
+     *        a single cell in the 2D heuristic search corresponding to 1 cell from the source map.
+     *        A block size of 2 will result in a single cell in the 2D heuristic search corresponding to
+     *        a 2x2 set of blocks from the source map with a cost of the max of the 2x2 source cells.
+     */
+    virtual void Set2DBlockSize(int BlockSize);
+
+    /**
+     * @brief Set2DBucketSize Set the initial size of the CSlidingBuckets used for the fringe priority list
+     * @param BucketSize
+     */
+    virtual void Set2DBucketSize(int BucketSize);
+
+    virtual double DiscTheta2ContNew(int theta) const;
+
+    virtual int ContTheta2DiscNew(double theta) const;
+
+    virtual double DiscTheta2ContFromSet(int theta) const;
+
+    virtual int ContTheta2DiscFromSet(double theta) const;
+
+    virtual int normalizeDiscAngle(int theta) const;
 
     /**
      * \brief initialize environment. Gridworld is defined as matrix A of size width by height.
@@ -420,6 +466,10 @@ protected:
     std::vector<sbpl_xy_theta_cell_t> affectedsuccstatesV; //arrays of states whose outgoing actions cross cell 0,0
     std::vector<sbpl_xy_theta_cell_t> affectedpredstatesV; //arrays of states whose incoming actions cross cell 0,0
     int iteration;
+    int blocksize; // 2D block size
+    int bucketsize; // 2D bucket size
+
+    bool bUseNonUniformAngles;
 
     //2D search for heuristic computations
     bool bNeedtoRecomputeStartHeuristics; //set whenever grid2Dsearchfromstart needs to be re-executed
@@ -517,6 +567,12 @@ public:
      */
     virtual int GetStateFromCoord(int x, int y, int theta);
 
+    /**
+     * \brief returns the actions / motion primitives of the passed path.
+     */
+    virtual void GetActionsFromStateIDPath(std::vector<int>* stateIDPath,
+                                           std::vector<EnvNAVXYTHETALATAction_t>* action_list);
+
     /** \brief converts a path given by stateIDs into a sequence of
      *         coordinates. Note that since motion primitives are short actions
      *         represented as a sequence of points,
@@ -536,6 +592,9 @@ public:
      * \brief returns all predecessors states and corresponding costs of actions
      */
     virtual void GetPreds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV);
+    virtual void GetLazyPreds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV, std::vector<bool>* isTrueCost);
+    virtual void GetPredsWithUniqueIds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV);
+    virtual void GetLazyPredsWithUniqueIds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV, std::vector<bool>* isTrueCost);
 
     /**
      * \brief returns all successors states, costs of corresponding actions
@@ -551,9 +610,6 @@ public:
     virtual void GetLazySuccsWithUniqueIds(int SourceStateID, std::vector<int>* SuccIDV, std::vector<int>* CostV, std::vector<bool>* isTrueCost, std::vector<EnvNAVXYTHETALATAction_t*>* actionindV = NULL);
     virtual int GetTrueCost(int parentID, int childID);
     virtual bool isGoal(int id);
-    //virtual void GetPreds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV, std::vector<bool>* isTrueCost);
-    //virtual void GetPredsWithUniqueIds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV);
-    //virtual void GetPredsWithUniqueIds(int TargetStateID, std::vector<int>* PredIDV, std::vector<int>* CostV, std::vector<bool>* isTrueCost);
 
 
     /** \brief this function fill in Predecessor/Successor states of edges
@@ -602,6 +658,8 @@ public:
      */
     virtual void PrintVars() { }
 
+    const EnvNAVXYTHETALATHashEntry_t* GetStateEntry(int state_id) const;
+
 protected:
     //hash table of size x_size*y_size. Maps from coords to stateId
     int HashTableSize;
@@ -628,4 +686,3 @@ protected:
 };
 
 #endif
-
