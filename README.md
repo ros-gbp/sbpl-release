@@ -1,3 +1,26 @@
+## sbpl (noetic) - 1.3.1-2
+
+The packages in the `sbpl` repository were released into the `noetic` distro by running `/home/pyo/.local/bin/bloom-release sbpl -t noetic -r noetic` on `Tue, 16 Jun 2020 22:15:37 -0000`
+
+The `sbpl` package was released.
+
+Version of package(s) in repository `sbpl`:
+
+- upstream repository: https://github.com/sbpl/sbpl
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `1.3.1-1`
+- new version: `1.3.1-2`
+
+Versions of tools used:
+
+- bloom version: `0.9.7`
+- catkin_pkg version: `0.4.20`
+- rosdep version: `0.19.0`
+- rosdistro version: `0.8.1`
+- vcstools version: `0.1.42`
+
+
 ## sbpl (noetic) - 1.3.1-1
 
 The packages in the `sbpl` repository were released into the `noetic` distro by running `/home/pyo/.local/bin/bloom-release sbpl -t noetic -r noetic` on `Tue, 16 Jun 2020 22:02:28 -0000`
