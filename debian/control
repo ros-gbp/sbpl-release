@@ -1,0 +1,12 @@
+Source: ros-noetic-sbpl
+Section: misc
+Priority: optional
+Maintainer: Pyo <pyo@robotis.com>
+Build-Depends: debhelper (>= 9.0.0), cmake
+Homepage: http://sbpl.net
+Standards-Version: 3.9.2
+
+Package: ros-noetic-sbpl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+Description: Search-based planning library (SBPL).
